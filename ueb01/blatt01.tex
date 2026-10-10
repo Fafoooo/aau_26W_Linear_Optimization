@@ -1,0 +1,259 @@
+% Eine Quelle, zwei PDFs. scripts/build.sh setzt \explainmode:
+%   0 -> loesung_blatt01.pdf
+%   1 -> erklaerung_blatt01.pdf
+\documentclass[a4paper,11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usepackage{pgfplots}\pgfplotsset{compat=1.18}
+\usepackage[most]{tcolorbox}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+
+\providecommand{\explainmode}{0}
+\newif\ifexplain
+\ifnum\explainmode=1 \explaintrue\fi
+
+\newcommand{\blatttitel}[2]{\begin{center}{\Large\bfseries #1}\\[2pt]#2\end{center}}
+\newcommand{\aufgabe}[1]{\section*{#1}}
+\newcommand{\angabe}[1]{\textit{#1}\par\smallskip}
+\newcommand{\teil}[1]{\subsection*{(#1)}}
+\newcommand{\why}[1]{\text{\small\color{black!65}#1}}
+
+\newtcolorbox{erklbox}{colback=blue!4,colframe=blue!40,breakable,boxrule=0.5pt,
+  fonttitle=\bfseries\small,title={Erklärung}}
+\newcommand{\explain}[1]{\ifexplain\begin{erklbox}#1\end{erklbox}\fi}
+\newcommand{\explainfig}[1]{\ifexplain\begin{center}#1\end{center}\fi}
+
+\begin{document}
+\blatttitel{Exercise sheet 1 -- \ifexplain Explanation\else Solution\fi}{Linear Optimization (WS 26/27)}
+
+\explain{Dieses Blatt fragt noch nicht nach dem Lösen von Optimierungsproblemen. Es geht darum, Begriffe aus der Vorlesung sicher wiederzugeben und reale Texte in mathematische Modelle mit Variablen, Zielfunktion und Nebenbedingungen zu übersetzen.}
+
+\aufgabe{Classroom task 1.1}
+\angabe{Consider the matrix $A=\begin{pmatrix}0&1&0\\2&0&1\\1&1&0\end{pmatrix}$. How many ways do you know to characterize invertibility of $A$? Which one is the most useful to see or prove invertibility of $A$?}
+\explain{Bei einer quadratischen Matrix kann Invertierbarkeit auf mehrere gleichwertige Arten geprüft werden. Für diese konkrete Matrix ist die Determinante besonders bequem, weil in der ersten Zeile zwei Nullen stehen.}
+
+Some characterizations for a square matrix $A\in\mathbb R^{n\times n}$ are:
+\begin{enumerate}[label=\arabic*.]
+  \item $A$ is invertible.
+  \item $\det(A)\neq 0$.
+  \item $\operatorname{rank}(A)=n$.
+  \item The columns of $A$ are linearly independent.
+  \item The rows of $A$ are linearly independent.
+  \item The homogeneous system $Ax=0$ has only the solution $x=0$.
+  \item For every $b\in\mathbb R^n$, the system $Ax=b$ has exactly one solution.
+\end{enumerate}
+\explain{Alle Aussagen in der Liste sind für quadratische Matrizen äquivalent. Man darf daher die Aussage wählen, die am wenigsten Rechenaufwand verursacht.}
+
+For the given matrix, the determinant test is useful. Expanding along row $1$ uses the entry $a_{12}=1$ and the minor with entries $2,1,1,0$:
+\begin{align*}
+\det(A)
+&= (-1)^{1+2}\cdot 1\cdot(2\cdot0-1\cdot1) && \why{Laplace expansion along row $1$}\\
+&= -1\cdot(2\cdot0-1\cdot1) && \why{$(-1)^{3}=-1$}\\
+&= -1\cdot(0-1) && \why{$2\cdot0=0$ and $1\cdot1=1$}\\
+&= -1\cdot(-1) && \why{$0-1=-1$}\\
+&= 1 && \why{$(-1)\cdot(-1)=1$}
+\end{align*}
+\explain{Eine Determinante ungleich Null bedeutet: Die Matrix hat vollen Rang, ihre Spalten sind unabhängig, und eine inverse Matrix existiert.}
+Because $\det(A)=1\neq0$, the matrix $A$ is invertible.
+
+Check with the inverse candidate
+\[
+A^{-1}=\begin{pmatrix}-1&0&1\\1&0&0\\2&1&-2\end{pmatrix}.
+\]
+The product $AA^{-1}$ has rows
+\begin{align*}
+\text{row}_1(AA^{-1})&=(1,0,0) && \why{row $1$ of $A$ selects row $2$ of $A^{-1}$}\\
+\text{row}_2(AA^{-1})&=2(-1,0,1)+(2,1,-2) && \why{row $2$ of $A$ gives $2R_1+R_3$}\\
+&=(-2,0,2)+(2,1,-2) && \why{multiply row $1$ by $2$}\\
+&=(0,1,0) && \why{add componentwise}\\
+\text{row}_3(AA^{-1})&=(-1,0,1)+(1,0,0) && \why{row $3$ of $A$ gives $R_1+R_2$}\\
+&=(0,0,1) && \why{add componentwise}
+\end{align*}
+Therefore $AA^{-1}=I_3$.
+\[
+\boxed{\text{The determinant criterion is the most useful one here, and }A\text{ is invertible.}}
+\]
+
+\aufgabe{Exercise 1.1}
+\angabe{Ask an AI what a linear program in standard form is. Then ask for the definitions of feasible or infeasible vector, feasible set, feasible or infeasible linear program, optimal value, bounded or unbounded linear program and optimal solution. Compare the answers to the lecture notes.}
+\explain{Die Vorlesung verwendet eine Maximierungsform mit Gleichungsnebenbedingungen und Nichtnegativität. Andere Bücher benutzen manchmal eine Minimierungsform oder Ungleichungen. Wichtig ist hier der Abgleich mit genau der Vorlesungsdefinition.}
+
+\teil{1}
+AI answer, key part:
+\[
+\begin{array}{ll}
+\text{maximize} & c^Tx\\
+\text{subject to} & Ax=b,\\
+& x\ge 0,
+\end{array}
+\]
+where $A\in\mathbb R^{m\times n}$, $b\in\mathbb R^m$, $c\in\mathbb R^n$, and $x\in\mathbb R^n$ is the decision variable.
+
+Lecture notes, Definition 1.11:
+\[
+\begin{array}{ll}
+\text{maximize} & c^Tx\\
+\text{subject to} & Ax=b,\\
+& x\ge 0.
+\end{array}
+\]
+\explain{Hier stimmen Zielfunktionsrichtung, Gleichung $Ax=b$ und Nichtnegativität $x\ge0$ überein. Genau diese drei Punkte bestimmen die Standardform im Skript.}
+
+Comparison:
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Point & AI answer & Lecture notes \\
+\midrule
+Objective & maximize $c^Tx$ & maximize $c^Tx$ \\
+Constraints & $Ax=b$ & $Ax=b$ \\
+Sign condition & $x\ge0$ & $x\ge0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\boxed{\text{The AI answer matches the lecture definition of standard form.}}
+\]
+
+\teil{2}
+For a linear program in standard form, let
+\[
+C=\{x\in\mathbb R^n\mid Ax=b,\ x\ge0\}.
+\]
+\explain{Die Menge $C$ sammelt alle Vektoren, die sämtliche Nebenbedingungen erfüllen. Danach können alle Begriffe kurz über $C$ formuliert werden.}
+
+\begin{center}
+\begin{tabular}{p{0.24\linewidth}p{0.34\linewidth}p{0.30\linewidth}}
+\toprule
+Term & AI answer, key part & Comparison with lecture notes \\
+\midrule
+feasible vector & $x$ is feasible if it satisfies all constraints $Ax=b$ and $x\ge0$; otherwise it is infeasible. & Same as Definition 1.15. \\
+feasible set & The set of all feasible vectors is $C=\{x\in\mathbb R^n\mid Ax=b,\ x\ge0\}$. & Same as Definition 1.15. \\
+feasible LP & The LP is feasible if $C\neq\emptyset$; otherwise it is infeasible. & Same as Definition 1.15. \\
+optimal value & $v=\sup\{c^Tx\mid x\in C\}$, with $v=-\infty$ when $C=\emptyset$. & Same as Definition 1.15. \\
+unbounded LP & A feasible LP is unbounded if for every $M\in\mathbb R$ there is an $x\in C$ with $c^Tx>M$; then $v=+\infty$. & Same as Definition 1.15. \\
+bounded LP & A feasible LP is bounded if there is an $M\in\mathbb R$ with $c^Tx\le M$ for every $x\in C$. & Same as Definition 1.15. \\
+optimal solution & A feasible point $x^*\in C$ is an optimal solution if $c^Tx^*\ge c^Tx$ for every $x\in C$. & Same as Definition 1.15. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\explain{Für ein Maximierungsproblem bedeutet ``unbeschränkt'': Der Zielfunktionswert kann beliebig groß werden. ``Beschränkt'' heißt hier nicht, dass die Menge $C$ selbst beschränkt sein muss, sondern dass die Werte $c^Tx$ nach oben durch eine Zahl $M$ begrenzt sind.}
+
+\[
+\boxed{\text{The AI definitions match the lecture definitions when the lecture standard form is used.}}
+\]
+
+\aufgabe{Exercise 1.2}
+\angabe{A student has at most $30$ minutes to consult sources about the course requirements. The sources have values and times: colleague $(4,5)$, first lecture $(8,9)$, Moodle description $(7,7)$, LV-Karte $(16,15)$, doing nothing $(40,30)$. At least two sources must be used. Maximize personal value within the time limit. Formulate the optimization problem.}
+\explain{Jede Quelle kann entweder gewählt oder nicht gewählt werden. Deshalb passen binäre Variablen: $1$ bedeutet gewählt, $0$ bedeutet nicht gewählt.}
+
+Define the decision variables
+\[
+x_i=\begin{cases}
+1, & \text{if source }i\text{ is used},\\
+0, & \text{if source }i\text{ is not used},
+\end{cases}
+\qquad i=1,\dots,5.
+\]
+\explain{Die fünfte Option verbraucht bereits alle 30 Minuten. Zusammen mit der Bedingung ``at least two'' kann sie in keiner zulässigen Lösung gewählt werden. Trotzdem darf sie im Modell stehen; die Nebenbedingungen regeln das.}
+
+The values give the objective function:
+\begin{align*}
+\text{value} &= 4x_1+8x_2+7x_3+16x_4+40x_5 && \why{use the given values}
+\end{align*}
+The time limit gives the time constraint:
+\begin{align*}
+5x_1+9x_2+7x_3+15x_4+30x_5 &\le 30 && \why{use the given times and the $30$ minute limit}
+\end{align*}
+The requirement to use at least two sources gives
+\begin{align*}
+x_1+x_2+x_3+x_4+x_5 &\ge 2. && \why{count the chosen sources}
+\end{align*}
+The binary restrictions are
+\begin{align*}
+x_i&\in\{0,1\}, && \why{each source is either chosen or not chosen, $i=1,\dots,5$}
+\end{align*}
+\explain{Die Zielfunktion wird maximiert, weil der persönliche Wert möglichst groß sein soll. Die Zeit steht als Nebenbedingung, weil höchstens 30 Minuten erlaubt sind.}
+
+Thus the optimization problem is
+\[
+\boxed{
+\begin{array}{ll}
+\text{maximize} & 4x_1+8x_2+7x_3+16x_4+40x_5\\[2mm]
+\text{subject to} & 5x_1+9x_2+7x_3+15x_4+30x_5\le30,\\
+& x_1+x_2+x_3+x_4+x_5\ge2,\\
+& x_i\in\{0,1\},\quad i=1,\dots,5.
+\end{array}}
+\]
+
+Consistency check:
+\begin{align*}
+5\cdot1+9\cdot1+7\cdot1+15\cdot0+30\cdot0 &= 21 && \why{test sources $1,2,3$}\\
+21&\le30 && \why{time limit is satisfied}\\
+1+1+1+0+0&=3 && \why{count selected sources}\\
+3&\ge2 && \why{at least two sources are used}
+\end{align*}
+\[
+\boxed{\text{The model above is the required binary optimization problem.}}
+\]
+
+\aufgabe{Exercise 1.3}
+\angabe{FreshShine produces shower gel, shampoo and body lotion. Profits per unit are $3$, $5$ and $4$ euros. Machine times per unit are: shower gel uses $1$ hour on A and $1$ hour on B; shampoo uses $2$ hours on A, $1$ hour on B and $3$ hours on C; body lotion uses $1$ hour on A, $2$ hours on B and $1$ hour on C. Monthly capacities are A: $170$, B: $150$, C: $180$ hours. All produced units can be sold. Maximize profit and formulate the mathematical optimization model.}
+\explain{Hier dürfen Mengen kontinuierlich modelliert werden, weil die Aufgabe keine Ganzzahligkeit verlangt. Die Variablen zählen produzierte Einheiten der drei Produkte.}
+
+Define
+\[
+x_1=\text{units of Citrus Shower Gel},\qquad
+x_2=\text{units of Citrus Shampoo},\qquad
+x_3=\text{units of Citrus Body Lotion}.
+\]
+The profit is
+\begin{align*}
+\text{profit} &= 3x_1+5x_2+4x_3 && \why{profit per unit times number of units}
+\end{align*}
+The capacity constraints are obtained machine by machine:
+\begin{align*}
+x_1+2x_2+x_3 &\le170 && \why{machine A hours}\\
+x_1+x_2+2x_3 &\le150 && \why{machine B hours}\\
+0x_1+3x_2+x_3 &\le180 && \why{machine C hours}
+\end{align*}
+The production quantities cannot be negative:
+\begin{align*}
+x_1,x_2,x_3&\ge0. && \why{units produced}
+\end{align*}
+\explain{In der C-Bedingung steht $0x_1$, weil Shower Gel keine Maschine C benötigt. Man kann den Term auch weglassen; hier bleibt er stehen, damit alle drei Produkte in jeder Zeile sichtbar sind.}
+
+Therefore the optimization model is
+\[
+\boxed{
+\begin{array}{ll}
+\text{maximize} & 3x_1+5x_2+4x_3\\[2mm]
+\text{subject to} & x_1+2x_2+x_3\le170,\\
+& x_1+x_2+2x_3\le150,\\
+& 3x_2+x_3\le180,\\
+& x_1,x_2,x_3\ge0.
+\end{array}}
+\]
+
+Consistency check with the sample plan $(x_1,x_2,x_3)=(10,20,30)$:
+\begin{align*}
+10+2\cdot20+30 &= 80 && \why{machine A use}\\
+80&\le170 && \why{A capacity}\\
+10+20+2\cdot30 &= 90 && \why{machine B use}\\
+90&\le150 && \why{B capacity}\\
+3\cdot20+30 &= 90 && \why{machine C use}\\
+90&\le180 && \why{C capacity}
+\end{align*}
+\[
+\boxed{\text{The model above is the required linear optimization model.}}
+\]
+
+\end{document}
